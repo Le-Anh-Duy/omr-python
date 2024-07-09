@@ -4,9 +4,14 @@ import cv2 as cv
 from utlis import drawGrid
 from utlis import splitBoxes
 from utlis import stackImages
-
+from utlis import getTransform
+import get_rec
 
 def isMarked(box):
+    # cv.destroyAllWindows()
+    # cv.imshow('box', box)
+    # cv.waitKey(0)
+
     totalPixels = cv.countNonZero(box)
     if totalPixels > 1000:
         return True
@@ -22,15 +27,33 @@ def getMarkedAnswer(boxes, questions, choices):
         grid.append([])
         for j in range(0, choices):
             grid[i].append(box_id)
+            # cv.imshow(f'box {i} {j}', boxes[box_id])
             box_id += 1
 
     for j in range(0, choices):
         cur = -1
+        numPixels = []
         for i in range(0, questions):
-            if isMarked(boxes[grid[i][j]]):
-                if cur == -1:
-                    cur = i
-                else:
+            # if isMarked(boxes[grid[i][j]]):
+            #     if cur == -1:
+            #         cur = i
+            #     else:
+            #         cur = -1
+            #         break
+            numPixels.append(cv.countNonZero(boxes[grid[i][j]]))
+
+        maxPixels = max(numPixels)
+        id_max = 0
+        for i in range(0, questions):
+            if numPixels[i] == maxPixels:
+                id_max = i
+                break
+
+        for i in range(0, questions):
+            if i == id_max:
+                cur = i
+            else:
+                if maxPixels - numPixels[i] < 200:
                     cur = -1
                     break
 
@@ -51,8 +74,26 @@ def student_id(student_rec_img):
     questions = 10
 
     student_rec_img = cv.resize(student_rec_img, (300, 800))
-    threshold = cv.threshold(student_rec_img, 170, 255, cv.THRESH_BINARY_INV)[1]
+    gray = cv.cvtColor(student_rec_img, cv.COLOR_BGR2GRAY)
+    blur = cv.blur(gray, (3, 3), 1)
+    # blur = cv.blur(blur, (5, 5), 3)
+    # blur = gray
+    # cv.imshow('student_rec_img gray', gray)
+    threshold = cv.threshold(blur, 200, 255, cv.THRESH_BINARY_INV)[1]
+
+    # cv.imshow('student_rec_img bulr', blur)
+
     boxes = splitBoxes(threshold, questions, choices)
+
+    # cv.imshow('student_rec_img', threshold)
+
+    # for i in range(len(boxes)):
+    #     cv.imshow(f'box {cv.countNonZero(boxes[i])}', boxes[i])
+
+        # cv.waitKey(0)
+
+    # cv.waitKey(0)
+
     return getMarkedAnswer(boxes, questions, choices)
 
 
@@ -61,6 +102,36 @@ def test_id(test_rec_img):
     questions = 10
 
     test_rec_img = cv.resize(test_rec_img, (150, 800))
-    threshold = cv.threshold(test_rec_img, 170, 255, cv.THRESH_BINARY_INV)[1]
+    gray = cv.cvtColor(test_rec_img, cv.COLOR_BGR2GRAY)
+    blur = cv.blur(gray, (3, 3), 1)
+    threshold = cv.threshold(blur, 200, 255, cv.THRESH_BINARY_INV)[1]
     boxes = splitBoxes(threshold, questions, choices)
+    # print("slited")
     return getMarkedAnswer(boxes, questions, choices)
+
+
+
+def get_sbd_made(img):
+
+    contours = get_rec.get_rec(img)
+    tmp = []
+    for contour in contours:
+        area = cv.contourArea(contour)
+        approx = cv.approxPolyDP(contour, 0.02 * cv.arcLength(contour, True), True)
+        res = getTransform(img, approx)
+
+        tmp.append([res, area])
+
+    tmp = sorted(tmp, key=lambda x: x[1], reverse=True)
+    tmp = tmp[:2]
+
+    # cv.imshow('tmp 0', tmp[0][0])
+    # cv.imshow('tmp 1', tmp[1][0])
+
+
+
+    stu_id = student_id(tmp[0][0])
+    made = test_id(tmp[1][0])
+    # print(stu_id, test_id)
+
+    return (stu_id, made)

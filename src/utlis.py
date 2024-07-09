@@ -149,3 +149,48 @@ def splitBoxes(img, vsplit=5, hsplit=5):
             # print(cv2.countNonZero(box), end=' ')
         # print()
     return boxes
+
+
+
+def reorder2(myPoints):
+    def sort_by_first_then_second(x):
+        return (x[0], x[1])
+    myPoints = sorted(myPoints, key=sort_by_first_then_second)
+    firstPoint = myPoints[0]
+
+    res = [firstPoint]
+    tmp = []
+    for i in range(1, 4):
+        a = myPoints[i][0] - firstPoint[0]
+        b = myPoints[i][1] - firstPoint[1]
+
+        if a == 0:
+            tmp.append([10000000000, i])
+        else:
+            tmp.append([b / a, i])
+
+    tmp = sorted(tmp, key=lambda x: x[0])
+
+    for p in tmp:
+        res.append(myPoints[p[1]])
+
+    res = np.array(res)
+
+    return res
+
+
+def getTransformFix(img, contour, widthImg=1448, heightImg=2136):
+    tmpContour = reorder(contour)
+    pts1 = np.float32(tmpContour)
+    # widthImg = 1448
+    # heightImg = 2136
+
+    # print(widthImg, heightImg)
+    # widthImg = 300
+    # heightImg = 600
+
+    pts2 = np.float32([[0, 0], [widthImg, 0], [0, heightImg], [widthImg, heightImg]])
+    matrix = cv2.getPerspectiveTransform(pts1, pts2)
+    imgOutput = cv2.warpPerspective(img, matrix, (widthImg, heightImg))
+
+    return imgOutput

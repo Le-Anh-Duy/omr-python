@@ -13,10 +13,9 @@ def get_rec(img):
     gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
     # Apply GaussianBlur
     blur = cv.GaussianBlur(gray, (3, 3), cv.BORDER_DEFAULT)
-    # Apply threshold
-    _, thresh = cv.threshold(blur, 240, 255, cv.THRESH_BINARY_INV)
-    # Find canny
-    canny = cv.Canny(blur, 50, 150)
+    blur = gray #cv.blur(gray, (3, 3), 1)
+
+    _, thresh = cv.threshold(blur, 245, 255, cv.THRESH_BINARY_INV)
     # Find contours
     contours, _ = cv.findContours(thresh, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
     # Get the largest contour
@@ -27,10 +26,11 @@ def get_rec(img):
     # cv.imshow('Contours', blank)
     # cv.imshow('original', img)
     # cv.imshow('canny', canny)
-    cv.imshow('gray', gray)
-    cv.imshow('thresh', thresh)
+    # cv.imshow('gray', gray)
+    # cv.imshow('thresh', thresh)
     # cv.imshow('blur', blur)
     # max_area = 0
+    # cv.waitKey(0)
 
     new_contours = []
 
@@ -50,7 +50,7 @@ def get_rec(img):
     height, width, _ = new_contours_img.shape
     resized = cv.resize(new_contours_img, (width // 2, height // 2))
 
-    cv.imshow('New Contours', resized)
+    # cv.imshow('New Contours', resized)
     # cnt = contours[ci]
     # # Get the bounding rectangle
     # x, y, w, h = cv.boundingRect(cnt)
@@ -68,12 +68,14 @@ def get_rec(img):
         tmp = utlis.getTransform(img, approx)
         # newArr.append(tmp)
         # if (cnt == 7):
-        cv.imshow(f'Transformed {cnt}', tmp)
+        # cv.imshow(f'Transformed {cnt}', tmp)
         cnt += 1
 
     # wind = utlis.stackImages(newArr)
     # cv.imshow('Transformed', wind)
     contour_point = cv.resize(contour_point, (width // 2, height // 2))
-    cv.imshow('Contour Points', contour_point)
+    # cv.imshow('Contour Points', contour_point)
+
+    # cv.waitKey(0)
 
     return new_contours
