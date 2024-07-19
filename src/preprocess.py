@@ -80,6 +80,6 @@ def get_frame(img):
                         # print(res[0], res[1])
 
     reorder = utlis.reorder(res[0])
-    imgOutput = utlis.getTransformFix(original, reorder)
+    imgOutput = utlis.getTransformFix(original, reorder, 1448, 2136)
 
     return imgOutput

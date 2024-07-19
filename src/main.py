@@ -8,7 +8,9 @@ from grader_2025 import grade
 import preprocess
 
 
-# img = cv.imread('assets/2025.png')
+# im22g = cv.imread('assets/2025.png')
+# cv.imshow('2025', im22g)
+# cv.waitKey(0)
 # gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
 # blur = cv.GaussianBlur(img, (9, 9), cv.BORDER_DEFAULT)
 
@@ -38,39 +40,44 @@ def grade_2025(path):
     # gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
 
     output = preprocess.get_frame(img)
-    width = img.shape[1]
-    height = img.shape[0]
+    width = output.shape[1]
+    height = output.shape[0]
     info = output[0:700, 1050:width]
     partOne = output[700:1160, 0:width]
     partTwo = output[1160:1470, 0:width]
     partThree = output[1470:height, 0:width]
 
+    copy = output.copy()
+    copy = cv.resize(copy, (0, 0), fx=0.4, fy=0.4)
+    # print("output shape: ", output.shape[0], output.shape[1])
+    # widthOutput = partThree.shape[1]
+    # heightOutput = partThree.shape[0]
+    # print(widthOutput, heightOutput)
+    # cv.imshow("parthree", partThree)
+    # cv.waitKey(0)
+
     p1 = part1.part1_main(partOne)
-    # print(p1)
     p1res = grade.part1_grader(p1)
+    # print(p1)
     print(p1res)
 
     p2 = part2.part2_main(partTwo)
-    # print(p2)
     p2res = grade.part2_grader(p2)
+    # print(p2)
     print(p2res)
 
     p3 = part3.part3_main(partThree)
-    # print(p3)
     p3res = grade.part3_grader(p3)
+    # print(p3)
     print(p3res)
 
     getinfo = sbd_mdt.get_sbd_made(info)
-    # print(getinfo)
     jsInfo = grade.get_info(getinfo)
+    # print(getinfo)
     print(jsInfo)
 
-    # retJson = { grade.get_info(getinfo),
-    #     grade.part1_grader(partOne),
-    #     grade.part2_grader(partTwo),
-    #     grade.part3_grader(partThree)
-    # }
+    retJson = {jsInfo, p1res, p2res, p3res}
 
-    cv.waitKey(0)
+    # cv.waitKey(0)
 
-grade_2025('assets/sbd-09.png')
+grade_2025('assets/testA4.png')
