@@ -4,6 +4,8 @@ import utlis
 import random
 
 
+
+# get the frame of the image by detect the four corner points and make the image has size of 1448, 2136
 def get_frame(img):
 
     copy = img.copy()
