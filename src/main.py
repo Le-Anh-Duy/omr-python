@@ -18,12 +18,26 @@ def grade_2025(path):
 
     # resize the image to match the size of 1448, 2136
     output = preprocess.get_frame(img)
+
+
+    cv.imshow('output', output)
+    cv.waitKey(0)
+
     width = output.shape[1]
     height = output.shape[0]
     info = output[0:700, 1050:width]
     partOne = output[700:1160, 0:width]
     partTwo = output[1160:1470, 0:width]
     partThree = output[1470:height, 0:width]
+
+
+    cv.imwrite('assets/info.jpg', info)
+
+    cv.imshow('info', info)
+    cv.imshow('part1', partOne)
+    cv.imshow('part2', partTwo)
+    cv.imshow('part3', partThree)
+    cv.waitKey(0)
 
 
     p1 = part1.part1_main(partOne)
@@ -41,4 +55,12 @@ def grade_2025(path):
     retJson = [jsInfo, p1res, p2res, p3res]
     return retJson
 
-print(grade_2025('assets/testA4.png'))
+print(grade_2025('assets/document3.jpg'))
+
+# img = cv.imread('assets/document3.jpg')
+# img = preprocess.get_frame(img)
+# # resize by half
+# img = cv.resize(img, (0, 0), fx=0.3, fy=0.3)
+
+# cv.imshow('img', img)
+# cv.waitKey(0)

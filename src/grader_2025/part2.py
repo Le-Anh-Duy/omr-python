@@ -19,7 +19,8 @@ def get(img, number):
     width = img.shape[1]
     height = img.shape[0]
     gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
-    img = cv.threshold(gray, 170, 255, cv.THRESH_BINARY_INV)[1]
+    blur = cv.GaussianBlur(gray, (5, 5), 1)
+    img = cv.threshold(blur, 170, 255, cv.THRESH_BINARY_INV)[1]
 
     crop_img = img[85:(height - 20), 45:(width - 5)]
 
@@ -30,6 +31,7 @@ def get(img, number):
     # cv.imshow('crop', crop_img)
     # cv.imshow('img', img)
     # cv.imshow('resized', resized)
+    # cv.waitKey(0)
 
     questions = 4
     choices = 2
@@ -38,7 +40,7 @@ def get(img, number):
 
     # cv.imshow(f"grid 1 number {number}", boxes[0])
     # cv.imshow(f"grid 2 number {number}", boxes[1])
-
+    # cv.waitKey(0)
     index = 0
 
     grid = []

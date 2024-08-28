@@ -24,11 +24,18 @@ def get_rec(img):
     gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
     # Apply GaussianBlur
     blur = cv.GaussianBlur(gray, (3, 3), cv.BORDER_DEFAULT)
-    blur = gray #cv.blur(gray, (3, 3), 1)
+    # blur = gray #cv.blur(gray, (3, 3), 1)
 
-    _, thresh = cv.threshold(blur, 200, 255, cv.THRESH_BINARY_INV)
+    _, thresh = cv.threshold(blur, 170, 255, cv.THRESH_BINARY_INV)
     # Find contours
     contours, _ = cv.findContours(thresh, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
+
+    # draw the contours
+    # blank = img.copy()
+    # cv.drawContours(blank, contours, -1, (0, 255, 0), 1)
+    # cv.imshow('Contours', blank)
+    # cv.imshow('thresh', thresh)
+    # cv.waitKey(0)
 
     new_contours = []
 
@@ -113,8 +120,11 @@ def part1_main(img):
     tmp = []
     for contour in contours:
         area = cv.contourArea(contour)
-        approx = cv.approxPolyDP(contour, 0.02 * cv.arcLength(contour, True), True)
+        approx = cv.approxPolyDP(contour, 0.025 * cv.arcLength(contour, True), True)
         res = getTransform(img, approx)
+
+
+
         res = res[0:res.shape[0], 0:res.shape[1] - 5]
         # print(approx)
         mi = 1000000000
@@ -132,6 +142,7 @@ def part1_main(img):
 
     for i in range(0, 4):
         # cv.imshow(f'part1 {i}', tmp[i][0])
+        # cv.waitKey(0)
         ret.append(get(tmp[i][0], i))
 
     return ret

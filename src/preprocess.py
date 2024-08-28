@@ -3,10 +3,79 @@ import numpy as np
 import utlis
 import random
 
+import matplotlib.pyplot as plt
 
+def extract_paper(img):
+    gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
+
+    blur = cv.blur(gray, (3, 3), 1)
+    blur = cv.blur(blur, (5, 5), 3)
+    _, thresh = cv.threshold(blur, 150, 255, cv.THRESH_BINARY_INV)
+    canny = cv.Canny(thresh, 50, 50)
+
+    contours, _ = cv.findContours(canny, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
+
+    # get biggest contour
+
+    max_area = 0
+    max_contour = None
+
+    for contour in contours:
+        area = cv.contourArea(contour)
+        if area > max_area:
+            max_area = area
+            max_contour = contour
+
+    if (max_contour is None):
+        return None
+
+    # get the four corner points of the biggest contour
+    peri = cv.arcLength(max_contour, True)
+    approx = cv.approxPolyDP(max_contour, 0.02 * peri, True)
+
+    # return the image with the biggest contour
+
+    return utlis.getTransform(img, approx)
+
+
+def enhance_edge(img):
+    # img = cv.imread(image_path, 1)
+    # converting to LAB color space
+    lab= cv.cvtColor(img, cv.COLOR_BGR2LAB)
+    l_channel, a, b = cv.split(lab)
+
+    # Applying CLAHE to L-channel
+    # feel free to try different values for the limit and grid size:
+    clahe = cv.createCLAHE(clipLimit=2.0, tileGridSize=(8,8))
+    cl = clahe.apply(l_channel)
+
+    # merge the CLAHE enhanced L-channel with the a and b channel
+    limg = cv.merge((cl,a,b))
+
+    # Converting image from LAB Color model to BGR color spcae
+    enhanced_img = cv.cvtColor(limg, cv.COLOR_LAB2BGR)
+
+    return enhanced_img
+
+
+# scaled = cv2.resize(enhance_edge('test2.jpg'), (0,0), fx=0.4, fy=0.4)
+
+# cv2.imshow('Enhanced Image', scaled)
+# cv2.waitKey(0)
+
+def show_img(img):
+
+    copy = img.copy()
+    copy = cv.resize(copy, (0, 0), fx=0.3, fy=0.3)
+    # cv.imshow('copy', copy)
+    # cv.waitKey(0)
 
 # get the frame of the image by detect the four corner points and make the image has size of 1448, 2136
 def get_frame(img):
+
+    paper = extract_paper(img)
+    if paper is not None:
+        img = paper
 
     copy = img.copy()
 
@@ -17,9 +86,13 @@ def get_frame(img):
     _, thresh = cv.threshold(blur, 150, 255, cv.THRESH_BINARY_INV)
     canny = cv.Canny(thresh, 50, 50)
 
-    # cv.imshow('canny', canny)
+    show_img(thresh)
 
     contours, _ = cv.findContours(canny, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
+
+    drawContour = cv.drawContours(copy, contours, -1, (0, 255, 0), 2)
+
+    show_img(drawContour)
 
     square = []
 
@@ -27,20 +100,27 @@ def get_frame(img):
 
         area = cv.contourArea(contour)
         peri = cv.arcLength(contour, True)
-        approx = cv.approxPolyDP(contour, 0.02 * peri, True)
+        approx = cv.approxPolyDP(contour, 0.025 * peri, True)
+
+        # print(len(approx))
+        # tmp = utlis.getTransform(thresh, approx)
+        # cv.imshow(f'tmp {len(approx)}', tmp)
+        # cv.waitKey(0)
 
         if (area < 300):
             continue
         if (len(approx) == 4):
             tmpImg = utlis.getTransform(thresh, approx)
+
+            # cv.imshow('tmpImg', tmpImg)
+            # cv.waitKey(0)
+
             percent = cv.countNonZero(tmpImg) / (tmpImg.shape[0] * tmpImg.shape[1])
             square.append([utlis.Get_Conner_Points(contour), percent])
         # x, y, w, h = cv.boundingRect(approx)
 
 
     square = sorted(square, key=lambda x: x[1], reverse=True)
-
-    # square = [0:9]
     square = square[:8]
 
     original = img.copy()
@@ -84,4 +164,18 @@ def get_frame(img):
     reorder = utlis.reorder(res[0])
     imgOutput = utlis.getTransformFix(original, reorder, 1448, 2136)
 
-    return imgOutput
+    # temp = enhance_edge(imgOutput.copy())
+
+    # scaled = cv.resize(temp, (0, 0), fx=0.4, fy=0.4)
+    # cv.imshow('Enhanced Image', scaled)
+    # cv.waitKey(0)
+
+    return enhance_edge(imgOutput)
+
+# img = cv.imread('document3.jpg')
+# img = get_frame(img)
+# # resize by half
+# img = cv.resize(img, (0, 0), fx=0.3, fy=0.3)
+
+# cv.imshow('img', img)
+# cv.waitKey(0)

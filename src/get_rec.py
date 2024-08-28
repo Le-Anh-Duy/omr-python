@@ -13,16 +13,16 @@ def get_rec(img):
     gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
     # Apply GaussianBlur
     blur = cv.GaussianBlur(gray, (3, 3), cv.BORDER_DEFAULT)
-    blur = gray #cv.blur(gray, (3, 3), 1)
+    # blur = gray #cv.blur(gray, (3, 3), 1)
 
-    _, thresh = cv.threshold(blur, 245, 255, cv.THRESH_BINARY_INV)
+    _, thresh = cv.threshold(blur, 175, 255, cv.THRESH_BINARY_INV)
     # Find contours
     contours, _ = cv.findContours(thresh, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
     # Get the largest contour
 
     # draw the contours
-    blank = img.copy()
-    cv.drawContours(blank, contours, -1, (0, 255, 0), 1)
+    # blank = img.copy()
+    # cv.drawContours(blank, contours, -1, (0, 255, 0), 1)
     # cv.imshow('Contours', blank)
     # cv.imshow('original', img)
     # cv.imshow('canny', canny)

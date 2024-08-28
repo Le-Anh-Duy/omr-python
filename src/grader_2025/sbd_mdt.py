@@ -120,14 +120,19 @@ def get_sbd_made(img):
         approx = cv.approxPolyDP(contour, 0.02 * cv.arcLength(contour, True), True)
         res = getTransform(img, approx)
 
+        # cv.imshow('res', res)
+        # cv.waitKey(0)
+        print("asfdasdfasdf")
         tmp.append([res, area])
+
+
 
     tmp = sorted(tmp, key=lambda x: x[1], reverse=True)
     tmp = tmp[:2]
 
     # cv.imshow('tmp 0', tmp[0][0])
     # cv.imshow('tmp 1', tmp[1][0])
-
+    # cv.waitKey(0)
 
 
     stu_id = student_id(tmp[0][0])
