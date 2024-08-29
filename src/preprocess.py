@@ -26,7 +26,7 @@ def extract_paper(img):
             max_area = area
             max_contour = contour
 
-    if (max_contour is None):
+    if (max_contour is None or max_area < 5000):
         return None
 
     # get the four corner points of the biggest contour
@@ -68,14 +68,22 @@ def show_img(img):
     copy = img.copy()
     copy = cv.resize(copy, (0, 0), fx=0.3, fy=0.3)
     # cv.imshow('copy', copy)
-    # cv.waitKey(0)
+    cv.waitKey(0)
 
 # get the frame of the image by detect the four corner points and make the image has size of 1448, 2136
 def get_frame(img):
 
     paper = extract_paper(img)
+
+
     if paper is not None:
+        # cv.imshow('paper', paper)
+        print('Paper detected')
         img = paper
+    else:
+        print('Paper not detected')
+
+    # show_img(img)
 
     copy = img.copy()
 
@@ -86,7 +94,7 @@ def get_frame(img):
     _, thresh = cv.threshold(blur, 150, 255, cv.THRESH_BINARY_INV)
     canny = cv.Canny(thresh, 50, 50)
 
-    show_img(thresh)
+    # show_img(thresh)
 
     contours, _ = cv.findContours(canny, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
 
@@ -142,6 +150,11 @@ def get_frame(img):
     res = [[], 0]
 
     n = len(square)
+
+    if (n < 4):
+        print('Not enough square')
+        return None
+
 
     for i in range(0, n):
         for j in range(i + 1, n):

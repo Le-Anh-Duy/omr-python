@@ -76,23 +76,12 @@ def student_id(student_rec_img):
     student_rec_img = cv.resize(student_rec_img, (300, 800))
     gray = cv.cvtColor(student_rec_img, cv.COLOR_BGR2GRAY)
     blur = cv.blur(gray, (3, 3), 1)
-    # blur = cv.blur(blur, (5, 5), 3)
-    # blur = gray
-    # cv.imshow('student_rec_img gray', gray)
     threshold = cv.threshold(blur, 200, 255, cv.THRESH_BINARY_INV)[1]
 
     # cv.imshow('student_rec_img bulr', blur)
 
     boxes = splitBoxes(threshold, questions, choices)
 
-    # cv.imshow('student_rec_img', threshold)
-
-    # for i in range(len(boxes)):
-    #     cv.imshow(f'box {cv.countNonZero(boxes[i])}', boxes[i])
-
-        # cv.waitKey(0)
-
-    # cv.waitKey(0)
 
     return getMarkedAnswer(boxes, questions, choices)
 
@@ -113,7 +102,7 @@ def test_id(test_rec_img):
 
 def get_sbd_made(img):
 
-    contours = get_rec.get_rec(img)
+    contours = get_rec.get_rec(img, 180)
     tmp = []
     for contour in contours:
         area = cv.contourArea(contour)
@@ -122,7 +111,7 @@ def get_sbd_made(img):
 
         # cv.imshow('res', res)
         # cv.waitKey(0)
-        print("asfdasdfasdf")
+        # print("asfdasdfasdf")
         tmp.append([res, area])
 
 
